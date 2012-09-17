@@ -21,7 +21,7 @@
  *H Luafann
  *# Lua wrapper for the {*FANN*} neural network functions.\n
  *# \n
- *# To load Luafann as a Lua module use the {{require("luafann")}} Lua construct.
+ *# To load Luafann as a Lua module use the {{require("fann")}} Lua construct.
  *# \n
  *# In the examples below, the variable {{ann}} refers to a neural network
  *# object instance created by {{fann.create_standard()}} or {{fann.create_from_file()}},
@@ -1028,7 +1028,7 @@ static const struct iglobal fann_activation_functions [] = {
 	{NULL, 0}
 };
 
-LUALIB_API int luaopen_luafann(lua_State *L)
+LUALIB_API int luaopen_fann(lua_State *L)
 {
 	const struct iglobal *i;
 

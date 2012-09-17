@@ -20,4 +20,4 @@
 /*
  *	This module forms the FANN wrapper for Lua
  */
-LUALIB_API int luaopen_luafann(lua_State *L);
+LUALIB_API int luaopen_fann(lua_State *L);

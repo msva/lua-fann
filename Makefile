@@ -17,28 +17,27 @@ CF		 = $(CFLAGS) $(INCLUDES)
 
 all: module
 
-module: src/luafann.so
+module: src/fann.so
 
-src/luafann.so: src/luafann.o
+src/fann.so: src/fann.o
 	$(CC) $(LF) $^ -o $@
 
-src/luafann.o: src/luafann.c
+src/fann.o: src/fann.c
 	$(CC) $(CF) -c $^ -o $@
 
 docs: doc/luafann.html
 
-doc/luafann.html: src/luafann.c
+doc/luafann.html: src/fann.c
 	-@mkdir -p doc
 	$(LUABIN) doc.lua < $< > $@
 
 install: all
 	$(INSTALL) -d $(LUA_CMODULE_DIR)
-	$(INSTALL) src/luafann.so $(LUA_CMODULE_DIR)
+	$(INSTALL) src/fann.so $(LUA_CMODULE_DIR)
 
 test: all
-	-@ln -sf ../src/luafann.so test/
+	-@ln -sf ../src/fann.so test/
 	-@cd test && $(LUABIN) module.lua
 
 clean:
-	-@rm -f src/*.o src/*.so test/*.net doc/luafann.html test/luafann.so
-	-@rmdir doc
+	-@rm -f src/*.o src/*.so test/*.net doc/luafann.html test/fann.so
