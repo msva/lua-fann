@@ -11,8 +11,8 @@ It is not a complete set of bindings. Hopefully the source code is
 clear enough that you'll be able to add more bindings if I don't provide
 them. Hopefully I'll be able to spend some more time on it in the future.
 
-I provide a Makefile (`GNU` one, but it shaoud work on `BSD` too) that
-contains these targets:
+I provide a `Makefile` (`GNU` one, but it should work on `BSD` and other
+POSIX-systems (not Windows) as well) that contains these targets:
 
 * `module`
 	builds a Lua C module that can be imported after installation.
@@ -35,12 +35,12 @@ For debugging purposes you can `export CFLAGS` variable with `-DFANN_VERBOSE`
 value before making library.
 
 Unfortunately I don't have access to other operating systems supported by
-Lua and FANN, so I cannot provide makefiles/project files for those. If
+Lua and FANN, so I can't provide specific makefiles/project files for those. If
 anyone can contribute it would be greatly appreciated. If you need
 to build the module on another operating system you can follow the
 instructions found on the
 [Building Modules](http://lua-users.org/wiki/BuildingModules) page
-in the Lua users wiki.
+in the `Lua users wiki`.
 
 ## Info
 
