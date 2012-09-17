@@ -1,0 +1,188 @@
+<HTML><HEAD><TITLE>Luafann Documentation</TITLE>
+<STYLE>
+<!--
+tt,b {color:rgb(64,128,64)}
+pre {background:rgb(235,255,235);color:rgb(64,128,64);margin-left:30px;margin-right:30px}
+h2 {background:rgb(150,255,150);color:rgb(32,64,32);text-align:center}
+h3 {background:rgb(200,255,200);color:rgb(32,64,32);text-align:left}
+h4 {font-family:monospace;color:rgb(64,128,64);background:rgb(220,255,220)}
+body {font-family:arial, "lucida console", sans-serif;margin-left:20px;margin-right:20px}
+-->
+</STYLE>
+</HEAD><BODY>
+<H2> Luafann</H2>
+ Lua wrapper for the <B>FANN</B> neural network functions.<BR>
+ <BR>
+ To load Luafann as a Lua module use the <TT>require("fann")</TT> Lua construct.
+ <BR>
+ In the examples below, the variable <TT>ann</TT> refers to a neural network
+ object instance created by <TT>fann.create_standard()</TT> or <TT>fann.create_from_file()</TT>,
+ and the variable <TT>train</TT> refers to a training set object instance created by
+ <TT>fann.read_train_from_file()</TT>
+<HR>
+<H4><TT> fann.create_standard(num_layers, neurons_1, neurons_2, ..., neurons_n)</TT></H4>
+ Creates a neural network with <TT>num_layers</TT>.<BR>
+ The i'th layer will have <TT>neurons_i</TT> neurons (the function must thus have
+ <TT>num_layers+1</TT> parameters in total).
+<br><b>Example:</b><tt> ann = fann.create_standard(3, 2, 3, 1)</tt>
+<HR>
+<H4><TT> fann.create_sparse(connection_rate, num_layers, neurons_1, neurons_2, ..., neurons_n)</TT></H4>
+ Creates a neural network with <TT>num_layers</TT> that are not fully connected.<BR>
+ The i'th layer will have <TT>neurons_i</TT> neurons (the function must thus have
+ <TT>num_layers+1</TT> parameters in total).
+<br><b>Example:</b><tt> ann = fann.create_sparse(0.5, 3, 2, 3, 1)</tt>
+<HR>
+<H4><TT> fann.create_from_file(filename)</TT></H4>
+ Creates a neural network from a file.
+<br><b>Example:</b><tt> ann = fann.create_from_file("xor_float.net")</tt>
+<HR>
+<H4><TT> ann:__gc()</TT></H4>
+ Garbage collects the neural network.
+<HR>
+<H4><TT> ann:__tostring()</TT></H4>
+ Converts a neural net to a string for Lua's virtual machine
+<br><b>Example:</b><tt> print(ann)</tt>
+<HR>
+<H4><TT> ann:print_connections()</TT></H4>
+ Prints the connections in the neural network
+<br><b>Example:</b><tt> ann:print_connections()</tt>
+<HR>
+<H4><TT> ann:print_parameters()</TT></H4>
+ Prints the neural network's parameters
+<br><b>Example:</b><tt> ann:print_parameters()</tt>
+<HR>
+<H4><TT> ann:set_training_algorithm(function)</TT></H4>
+ Sets the training function for the neural network.<BR>
+ Valid algorithms are <TT>fann.FANN_TRAIN_INCREMENTAL</TT>,
+ <TT>fann.FANN_TRAIN_BATCH</TT>, <TT>fann.FANN_TRAIN_RPROP</TT> or
+ <TT>fann.FANN_TRAIN_QUICKPROP</TT>
+<br><b>Example:</b><tt> ann:set_training_algorithm(fann.FANN_TRAIN_QUICKPROP)</tt>
+<HR>
+<H4><TT> ann:get_training_algorithm()</TT></H4>
+ Retrieves the training algorithm:<BR>
+ Valid algorithms are <TT>fann.FANN_TRAIN_INCREMENTAL</TT>,
+ <TT>fann.FANN_TRAIN_BATCH</TT>, <TT>fann.FANN_TRAIN_RPROP</TT> or
+ <TT>fann.FANN_TRAIN_QUICKPROP</TT>
+<HR>
+<H4><TT> ann:set_learning_rate(function)</TT></H4>
+ Sets the learning rate for the various training algorithms.
+<br><b>Example:</b><tt> ann:set_learning_rate(0.7)</tt>
+<HR>
+<H4><TT> ann:get_learning_rate()</TT></H4>
+ Retrieves the learning rate of the training algorithm.
+<HR>
+<H4><TT> ann:set_activation_function_hidden(function)</TT></H4>
+ Sets the activation function for the hidden layer neurons.
+<br><b>Example:</b><tt> ann:set_activation_function_hidden(fann.FANN_SIGMOID_SYMMETRIC)</tt>
+<HR>
+<H4><TT> ann:set_activation_function_output(function)</TT></H4>
+ Sets the activation function for the output neurons.
+<br><b>Example:</b><tt> ann:set_activation_function_output(fann.FANN_SIGMOID_SYMMETRIC)</tt>
+<HR>
+<H4><TT> ann:set_activation_steepness_hidden(function)</TT></H4>
+ Sets the steepness of the activation function for the hidden neurons.
+<br><b>Example:</b><tt> ann:set_activation_steepness_hidden(1)</tt>
+<HR>
+<H4><TT> ann:set_activation_steepness_output(function)</TT></H4>
+ Sets the steepness of the activation function for the output neurons.
+<br><b>Example:</b><tt> ann:set_activation_steepness_output(1)</tt>
+<HR>
+<H4><TT> ann:set_train_stop_function(function)</TT></H4>
+ Sets the training stop criteria.<BR>
+ Valid values are either <TT>FANN_STOPFUNC_BIT</TT> or <TT>FANN_STOPFUNC_MSE</TT>
+<br><b>Example:</b><tt> ann:set_train_stop_function(fann.FANN_STOPFUNC_BIT)</tt>
+<HR>
+<H4><TT> ann:set_bit_fail_limit(limit)</TT></H4>
+ Sets the bit fail limit for training the neural net.
+<br><b>Example:</b><tt> ann:set_bit_fail_limit(0.01)</tt>
+<HR>
+<H4><TT> ann:init_weights(train)</TT></H4>
+ Initializes the weights using Widrow and Nguyen's algorithm based on the
+ given training data <TT>train</TT>.
+<br><b>Example:</b><tt> ann:init_weights(train)</tt>
+<HR>
+<H4><TT> ann:test_data(train)</TT></H4>
+ Runs the network through the training data in <TT>train</TT> and
+ returns the MSE.
+<br><b>Example:</b><tt> mse = ann:test_data(train)</tt>
+<HR>
+<H4><TT> ann:run(input1, input2, ..., inputn)</TT></H4>
+ Evaluates the neural network for the given inputs.
+<br><b>Example:</b><tt> xor = ann:run(-1, 1)</tt>
+<HR>
+<H4><TT> ann:save(file)</TT></H4>
+ Saves a neural network to a file named <TT>file</TT>
+<br><b>Example:</b><tt> ann:save("xor_float.net")</tt>
+<HR>
+<H4><TT> fann.read_train_from_file(filename)</TT></H4>
+ Creates a training object by reading a training data file.
+<br><b>Example:</b><tt> train = fann.read_train_from_file("xor.data")</tt>
+<HR>
+<H4><TT> train:__gc()</TT></H4>
+ Garbage collects training data.
+<HR>
+<H4><TT> train:__tostring()</TT></H4>
+ Converts training data to a string for Lua's virtual machine
+<br><b>Example:</b><tt> print(train)</tt>
+<HR>
+<H4><TT> ann:train_on_file(file, max_epochs, epochs_between_reports, desired_error)</TT></H4>
+ Trains the neural network on the data in the file <TT>file</TT>, for up to
+ <TT>max_epochs</TT> epochs, reporting every <TT>epochs_between_reports</TT>.
+ Training stops when the error reaches <TT>desired_error</TT>
+<br><b>Example:</b><tt> ann:train_on_file("xor.data", 500000, 1000, 0.001)</tt>
+<HR>
+<H4><TT> ann:train_on_data(train, max_epochs, epochs_between_reports, desired_error)</TT></H4>
+ Trains the neural network on the data in <TT>train</TT>, for up to
+ <TT>max_epochs</TT> epochs, reporting every <TT>epochs_between_reports</TT>.
+ Training stops when the error reaches <TT>desired_error</TT>
+<br><b>Example:</b><tt> ann:train_on_data(train, 500000, 1000, 0.001)</tt>
+<HR>
+<H4><TT> train:save(filename)</TT></H4>
+ Saves training data to a specified file
+<br><b>Example:</b><tt> train:save("train.data")</tt>
+<HR>
+<H4><TT> train:scale_input(min, max)</TT></H4>
+ Scales the inputs of training data  to the new range [<TT>min</TT>-<TT>max</TT>]
+<br><b>Example:</b><tt></tt>
+<HR>
+<H4><TT> train:scale_output(min, max)</TT></H4>
+ Scales the outputs of training data to the new range [<TT>min</TT>-<TT>max</TT>]
+<br><b>Example:</b><tt></tt>
+<HR>
+<H4><TT> train:scale(min, max)</TT></H4>
+ Scales the inputs and outputs of training data to the new range [<TT>min</TT>-<TT>max</TT>]
+<br><b>Example:</b><tt></tt>
+<HR>
+<H3> Constants</H3>
+ The <TT>fann</TT> class also contains several variables that reflect the constants defined
+ for FANN in <TT>fann_data.h</TT>, as listed below:<BR>
+ The following is a list of all activation functions in FANN.
+<UL>
+<LI> <TT>fann.FANN_LINEAR</TT>
+<LI> <TT>fann.FANN_THRESHOLD</TT>
+<LI> <TT>fann.FANN_THRESHOLD_SYMMETRIC</TT>
+<LI> <TT>fann.FANN_SIGMOID</TT>
+<LI> <TT>fann.FANN_SIGMOID_STEPWISE</TT>
+<LI> <TT>fann.FANN_SIGMOID_SYMMETRIC</TT>
+<LI> <TT>fann.FANN_SIGMOID_SYMMETRIC_STEPWISE</TT>
+<LI> <TT>fann.FANN_GAUSSIAN</TT>
+<LI> <TT>fann.FANN_GAUSSIAN_SYMMETRIC</TT>
+<LI> <TT>fann.FANN_ELLIOT</TT>
+<LI> <TT>fann.FANN_ELLIOT_SYMMETRIC</TT>
+<LI> <TT>fann.FANN_LINEAR_PIECE</TT>
+<LI> <TT>fann.FANN_LINEAR_PIECE_SYMMETRIC</TT>
+</UL>
+ The following is a list of the training algorithms that can be used.
+<UL>
+<LI> <TT>fann.FANN_TRAIN_INCREMENTAL</TT>
+<LI> <TT>fann.FANN_TRAIN_BATCH</TT>
+<LI> <TT>fann.FANN_TRAIN_RPROP</TT>
+<LI> <TT>fann.FANN_TRAIN_QUICKPROP</TT>
+</UL>
+ The following is a list of the stop criteria used during training
+<UL>
+<LI> <TT>fann.FANN_STOPFUNC_MSE</TT>
+<LI> <TT>fann.FANN_STOPFUNC_BIT</TT>
+</UL>
+<HR>
+</BODY></HTML>
