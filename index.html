@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Lua-fann by msva</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Lua-fann</h1>
+        <h2>LuaFann: Lua bindings for the Fast Artificial Neural Network Library</h2>
+        <a href="https://github.com/msva/lua-fann" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>LuaFann</h1>
+
+<p>These are a set of <code>Lua</code> bindings for the <a href="http://www.leenissen.dk/fann/">Fast Artificial Neural Network (<code>FANN</code>) library</a>.</p>
+
+<p>The <code>FANN</code> project has an excellent <a href="http://fann.sf.net/fann_en.pdf">introduction</a> on the theory and operation of artificial neural networks on its homepage.</p>
+
+<p>The source code in this module is released under the <code>GNU Lesser General Public License</code> (<code>LGPL</code>), which is the license under which the <code>FANN</code> library is released.</p>
+
+<p>You can access the <a href="https://github.com/msva/lua-fann/blob/master/README.md">README</a> or the <a href="/lua-fann/doc/luafann.html">manual</a> from this page.</p>
+
+<h2>Info</h2>
+
+<p>Current Team Lead: <code>Vadim A. Misbakh-Soloviov</code> (<a href="https://github.com/msva" class="user-mention">@msva</a>, <a href="mailto:mva@mva.name">mva@mva.name</a>)'2012
+<br>
+Original Author: <code>Werner Stoop</code> (<a href="mailto:wstoop@gmail.com">wstoop@gmail.com</a>)'2009</p>
+
+<p>Feel free to contact me (<a href="https://github.com/msva" class="user-mention">@msva</a>) if you have any problems/questions/suggestions. Alternatively, you can post your ideas/questions/suggestions on <a href="https://github.com/msva/lua-fann/issues">issue tracker</a></p>
+
+<h2>Building</h2>
+
+<p>The <code>LuaFann</code> module was written using <code>ANSI C</code>, and should work on any platforms supported by <code>Lua</code> and <code>FANN</code>. In order to build <code>LuaFann</code>, you should have <code>Lua</code> and <code>FANN</code> already installed on your system.</p>
+
+<p>It is a <code>Makefile</code> (<code>GNU</code> one, but it should work on <code>BSD</code> and other POSIX-systems (not Windows) as well), which you can use to build LuaFann on your system. Look at README for help about targets.</p>
+
+<p>Unfortunately I don't have access to other operating systems supported by <code>Lua</code> and <code>FANN</code>, so I cannot provide specific makefiles/project files for those. If you can contribute it would be greatly appreciated. If you need to build the module on another operating system you can follow the instructions found on the <a href="http://lua-users.org/wiki/BuildingModules">Building Modules</a> page in the <code>Lua users wiki</code>.</p>
+
+<h2>Example</h2>
+
+<p>Here is an example of a <code>Lua</code> script that imitates the <code>FANN</code> <code>XOR</code> example: <code>module.lua</code> (in test directory). This example trains a neural network to mimic the <code>exclusive-OR</code> (<code>XOR</code>) function (In the example, a <code>-1</code> is used for a boolean <code>false</code> and a <code>+1</code> is used for a boolean <code>true</code>).</p>
+
+<p>Load the <code>LuaFann</code> module into <code>Lua</code> through the require statement:</p>
+
+<div class="highlight"><pre><span class="nb">require</span><span class="p">(</span><span class="s2">"</span><span class="s">fann"</span><span class="p">)</span>
+</pre></div>
+
+<p>Create a neural network object through the <code>FANN</code> <code>create_standard()</code> function. The example creates a neural network with three layers where there are 2 input neurons, 2 neurons in the hidden layer and one output layer neuron:</p>
+
+<div class="highlight"><pre><span class="n">ann</span> <span class="o">=</span> <span class="n">fann</span><span class="p">.</span><span class="n">create_standard</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+<p>Next load some training data from a file through the <code>read_train_from_file()</code> function.</p>
+
+<div class="highlight"><pre><span class="n">train</span> <span class="o">=</span> <span class="n">fann</span><span class="p">.</span><span class="n">read_train_from_file</span><span class="p">(</span><span class="s2">"</span><span class="s">xor.data"</span><span class="p">)</span>
+</pre></div>
+
+<p>The <code>xor.data</code> training file comes from the <code>FANN</code> examples and is described in more detail on the <code>FANN</code> homepage.</p>
+
+<pre><code>4 2 1
+-1 -1
+-1
+-1 1
+1
+1 -1
+1
+1 1
+-1
+</code></pre>
+
+<p>It is a simple text file wherein the first row describes the training set: There are four entries, with two inputs and one output. Thereafter are alternating rows where the even rows' describe the entry's inputs and the odd rows describe the entry's output(s).</p>
+
+<p>The second and third rows describe the first training set: The second row has <code>-1 -1</code> as the two input values and the third row contains <code>-1</code> as the output value (more sophisticated networks may have more outputs) which means that when both inputs are <code>false</code>, the neural network should be trained to output a <code>false</code>.</p>
+
+<p>Likewise the forth and fifth rows describe the second training set, the sixth and seventh rows describe the third training set and the eight and ninth rows describe the forth training set. You'll notice that this training set will teach the network to output <code>-1</code> when its inputs are the same and to output <code>1</code> when its inputs are different (thus a <code>XOR</code> function)</p>
+
+<p>Next, some other parameters of the network are set. The <code>FANN</code> documentation provides some more detail on these:</p>
+
+<div class="highlight"><pre><span class="n">ann</span><span class="p">:</span><span class="n">set_activation_steepness_hidden</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ann</span><span class="p">:</span><span class="n">set_activation_steepness_output</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ann</span><span class="p">:</span><span class="n">set_activation_function_hidden</span><span class="p">(</span><span class="n">fann</span><span class="p">.</span><span class="n">FANN_SIGMOID_SYMMETRIC</span><span class="p">)</span>
+<span class="n">ann</span><span class="p">:</span><span class="n">set_activation_function_output</span><span class="p">(</span><span class="n">fann</span><span class="p">.</span><span class="n">FANN_SIGMOID_SYMMETRIC</span><span class="p">)</span>
+<span class="n">ann</span><span class="p">:</span><span class="n">set_train_stop_function</span><span class="p">(</span><span class="n">fann</span><span class="p">.</span><span class="n">FANN_STOPFUNC_BIT</span><span class="p">)</span>
+<span class="n">ann</span><span class="p">:</span><span class="n">set_bit_fail_limit</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
+</pre></div>
+
+<p>Now the weights within the neural network are initialized according to the training data:</p>
+
+<div class="highlight"><pre><span class="n">ann</span><span class="p">:</span><span class="n">init_weights</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+</pre></div>
+
+<p>You are now ready to call the <code>train_on_data()</code> function to train the neural network:</p>
+
+<div class="highlight"><pre><span class="n">ann</span><span class="p">:</span><span class="n">train_on_data</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="mi">500000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
+</pre></div>
+
+<p>You can use the <code>test_data()</code> function to calculate the mean-square error, which gives an indication of how well the neural network performs. The closer to zero this value is the smaller the error in the trained neural network:</p>
+
+<div class="highlight"><pre><span class="n">mse</span> <span class="o">=</span> <span class="n">ann</span><span class="p">:</span><span class="n">test_data</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="s">MSE: "</span> <span class="o">..</span> <span class="n">mse</span><span class="p">)</span>
+</pre></div>
+
+<p>You can use the <code>save()</code> function to save a neural network to a file.</p>
+
+<div class="highlight"><pre><span class="n">ann</span><span class="p">:</span><span class="n">save</span><span class="p">(</span><span class="s2">"</span><span class="s">myxor.net"</span><span class="p">)</span>
+</pre></div>
+
+<p>You can reload the neural network at a later stage through the <code>create_from_file()</code> function:</p>
+
+<div class="highlight"><pre><span class="n">ann</span> <span class="o">=</span> <span class="n">fann</span><span class="p">.</span><span class="n">create_from_file</span><span class="p">(</span><span class="s2">"</span><span class="s">myxor.net"</span><span class="p">)</span>
+</pre></div>
+
+<p>You are now ready to use the trained neural network to classify inputs through the <code>run()</code> function. In this example the <code>run()</code> function takes two inputs and returns a single output (which corresponds to the training set; other networks may have more inputs or outputs):</p>
+
+<div class="highlight"><pre><span class="n">xor</span> <span class="o">=</span> <span class="n">ann</span><span class="p">:</span><span class="n">run</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="s">Result: "</span> <span class="o">..</span> <span class="n">xor</span><span class="p">)</span>
+<span class="n">xor</span> <span class="o">=</span> <span class="n">ann</span><span class="p">:</span><span class="n">run</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="s">Result: "</span> <span class="o">..</span> <span class="n">xor</span><span class="p">)</span>
+<span class="n">xor</span> <span class="o">=</span> <span class="n">ann</span><span class="p">:</span><span class="n">run</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="s">Result: "</span> <span class="o">..</span> <span class="n">xor</span><span class="p">)</span>
+<span class="n">xor</span> <span class="o">=</span> <span class="n">ann</span><span class="p">:</span><span class="n">run</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="s">Result: "</span> <span class="o">..</span> <span class="n">xor</span><span class="p">)</span>
+</pre></div>
+
+<p>For fun, try changing the inputs to the network slightly, using, say, <code>xor = ann:run(1.1, -0.75)</code> to see that the network will still output a valid result.</p>
+
+<h2>Future</h2>
+
+<p>There are still a lot of the more advanced <code>FANN</code> functions outstanding. I hope to get around to those eventually.</p>
+
+<p>If there are functions you require urgently, you can place a feature request through the GitHub <a href="https://github.com/msva/lua-fann/issues/">issues</a>.</p>
+
+<p>Naturally, contributions from the community are always welcome.</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/msva/lua-fann/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/msva/lua-fann/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/msva/lua-fann"></a> is maintained by <a href="https://github.com/msva">msva</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
