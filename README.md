@@ -1,7 +1,7 @@
 LuaFann: Lua bindings for the Fast Artificial Neural Network Library
 ====================================================================
 
-Copyright (C) 2012 Vadim A. Misbakh-Soloviov
+Copyright (C) Vadim A. Misbakh-Soloviov
 <br />
 Copyright (C) 2008-2009  Werner Stoop
 
@@ -44,7 +44,7 @@ in the `Lua users wiki`.
 
 ## Info
 
-Current Team Lead: `Vadim A. Misbakh-Soloviov` (@msva, mva[at]mva.name)'2012
+Current Team Lead: `Vadim A. Misbakh-Soloviov` (@msva, mva[at]mva.name)
 <br />
 Original Author: `Werner Stoop` (wstoop@gmail.com)'2009
 

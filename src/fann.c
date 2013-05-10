@@ -1,5 +1,6 @@
 /******************************************************************
 	LuaFann: Lua bindings for the Fast Artificial Neural Network Library
+    Copyright (C) Vadim A. Misbakh-Soloviov
     Copyright (C) 2008-2009  Werner Stoop
 
     This library is free software; you can redistribute it and/or
@@ -897,7 +898,7 @@ static int ann_train_scale(lua_State *L)
 /* ************************************************************************** */
 
 /* Members of the FANN class */
-static const struct luaL_reg fann_lib [] = {
+static const struct luaL_Reg fann_lib[] = {
   {"create_standard", ann_create_standard},
   {"create_sparse", ann_create_sparse},
   {"create_from_file", ann_create_from_file},
@@ -910,7 +911,7 @@ static const struct luaL_reg fann_lib [] = {
  *    (see PIL chapter 29)
  * __tostring is a Lua metamethod to convert the object to a string
  */
-static const struct luaL_reg fann_lib_members [] = {
+static const struct luaL_Reg fann_lib_members[] = {
   {"__gc", ann_close},
   {"__tostring", ann_tostring},
   {"print_connections", ann_print_connections},
@@ -934,7 +935,7 @@ static const struct luaL_reg fann_lib_members [] = {
   {NULL, NULL}
 };
 
-static const struct luaL_reg fann_train_lib_members [] = {
+static const struct luaL_Reg fann_train_lib_members[] = {
   {"__gc", ann_train_close},
   {"__tostring", ann_train_tostring},
   {"save", ann_save_train},
