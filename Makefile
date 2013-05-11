@@ -106,7 +106,7 @@ $(VERSION).tar.gz: $(SRC) $(TEST_FLS) $(OTHER_FILES)
 	@$(call ext,"Creating $(VERSION).tar.gz...")
 	@mkdir $(VERSION)
 	@mkdir $(VERSION)/src
-	@cp $(SRC) $(VERSION)/src
+	@cp $(SRC) $(HDR) $(VERSION)/src
 	@mkdir $(VERSION)/test
 	@cp $(TEST_FLS) $(VERSION)/test
 	@cp $(OTHER_FILES) $(VERSION)
