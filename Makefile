@@ -65,7 +65,7 @@ $(BIN): $(OBJ)
 
 clean:
 	@$(call wrn,"Cleaning...")
-	@$(RM) -f $(OBJ) $(BIN) test/*.net test/$(BIN) $(DOCS)
+	@$(RM) -f $(OBJ) $(BIN) test/*.net test/*.so $(DOCS)
 	@$(call inf,"Cleaning is done!")
 
 docs: $(DOCS)
