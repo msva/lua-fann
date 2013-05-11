@@ -1,14 +1,4 @@
 include .config
-# Some functions for candiness-looking
-err =                                           \
-        @echo -e "\e[1;31m*\e[0m $(1)\e[0m";    \
-        @exit 1;
-inf =                                           \
-        @echo -e "\e[1;32m*\e[0m $(1)\e[0m";
-wrn =                                           \
-        @echo -e "\e[1;33m*\e[0m $(1)\e[0m";
-ext =                                           \
-        @echo -e "\e[1;35m*\e[0m $(1)\e[0m";
 
 UNAME            ?= $(shell uname)
 DESTDIR          ?= /
@@ -54,56 +44,39 @@ VERSION           = "Lua-FANN-0.3"
 all: $(BIN)
 
 $(BIN): $(OBJ)
-	@$(call ext,"Library compiling and linking...")
-	@$(CC) $(LF) $^ -o $@
-	@$(call inf,"Library compiling and linking is done!")
+	$(CC) $(LF) $^ -o $@
 
 %.o: %.c
-	@$(call ext,"Object files compliling in progress...")
-	@$(CC) $(CF) -c $^ -o $@
-	@$(call inf,"Object files compliling is done!")
+	$(CC) $(CF) -c $^ -o $@
 
 clean:
-	@$(call wrn,"Cleaning...")
-	@$(RM) -f $(OBJ) $(BIN) test/*.net test/*.so $(DOCS)
-	@$(call inf,"Cleaning is done!")
+	$(RM) -f $(OBJ) $(BIN) test/*.net test/*.so $(DOCS)
 
 docs: $(DOCS)
 
 $(DOCS): $(SRC)
-	@$(call ext,"Documentation generation...")
-	@mkdir -p doc
-	@$(LUA_BIN) doc.lua < $< > $@
-	@$(call inf,"Documentation generation is done!")
+	mkdir -p doc
+	$(LUA_BIN) doc.lua < $< > $@
 
 test: all
-	@$(call wrn,"Testing...")
-	-@ln -sf ../$(BIN) test/
-	-@cd test && $(LUA_BIN) module.lua
-	@$(call inf,"Testing is done!")
+	-ln -sf ../$(BIN) test/
+	cd test && $(LUA_BIN) module.lua
 
 dep:
-	@$(call ext,"Making depends...")
-	@makedepend $(DEFINES) -Y $(SRC) >/dev/null 2>&1
-	@$(RM) -f Makefile.bak
-	@$(call inf,"Making depends is done!")
+	makedepend $(DEFINES) -Y $(SRC) >/dev/null 2>&1
+	$(RM) -f Makefile.bak
 
 install: all
-	@$(call ext,"Installing...")
-	@$(INSTALL) -d $(DESTDIR)$(LUA_CMODULE_DIR)
-	@$(INSTALL) $(BIN) $(DESTDIR)$(LUA_CMODULE_DIR)
-	@$(call inf,"Installing is done!")
+	$(INSTALL) -d $(DESTDIR)$(LUA_CMODULE_DIR)
+	$(INSTALL) $(BIN) $(DESTDIR)$(LUA_CMODULE_DIR)
 
 uninstall: clean
-	@$(call wrn,"Uninstalling...")
-	@cd $(LUA_CMODULE_DIR);
-	@$(RM) -f $(BIN)
-	@$(call inf,"Uninstalling is done!")
+	cd $(LUA_CMODULE_DIR);
+	$(RM) -f $(BIN)
 
 dist: $(VERSION).tar.gz
 
 $(VERSION).tar.gz: $(SRC) $(TEST_FLS) $(OTHER_FILES)
-	@$(call ext,"Creating $(VERSION).tar.gz...")
 	@mkdir $(VERSION)
 	@mkdir $(VERSION)/src
 	@cp $(SRC) $(HDR) $(VERSION)/src
@@ -112,4 +85,3 @@ $(VERSION).tar.gz: $(SRC) $(TEST_FLS) $(OTHER_FILES)
 	@cp $(OTHER_FILES) $(VERSION)
 	@tar -czf $(VERSION).tar.gz $(VERSION)
 	@$(RM) -rf $(VERSION)
-	@$(call inf,"Creating is done!")
