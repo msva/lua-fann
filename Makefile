@@ -90,8 +90,8 @@ dep:
 
 install: all
 	@$(call ext,"Installing...")
-	@$(INSTALL) -d $(LUA_CMODULE_DIR)
-	@$(INSTALL) $(BIN) $(LUA_CMODULE_DIR)
+	@$(INSTALL) -d $(DESTDIR)$(LUA_CMODULE_DIR)
+	@$(INSTALL) $(BIN) $(DESTDIR)$(LUA_CMODULE_DIR)
 	@$(call inf,"Installing is done!")
 
 uninstall: clean
