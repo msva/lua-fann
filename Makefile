@@ -9,7 +9,7 @@ LUA_IMPL         ?= lua
 LUA_BIN          ?= $(LUA_IMPL)
 LUA_CMODULE_DIR  ?= $(shell $(PKG_CONFIG) --variable INSTALL_CMOD $(LUA_IMPL))
 LIBDIR           ?= $(shell $(PKG_CONFIG) --variable libdir $(LUA_IMPL))
-LUA_INC          ?= $(shell $(PKG_CONFIG) --variable INSTALL_INC $(LUA_IMPL))
+LUA_INC          ?= $(shell $(PKG_CONFIG) --variable includedir $(LUA_IMPL))
 CC               ?= cc
 
 ifeq ($(UNAME), Linux)
