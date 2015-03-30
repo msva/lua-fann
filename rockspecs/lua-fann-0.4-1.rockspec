@@ -56,8 +56,6 @@ build = {
       sources = {
         "src/fann.c"
       },
-      incdirs   = { "$(FANN_INCDIR)" },
-      libdirs   = { "$(FANN_LIBDIR)" }
     },
   }
 }
