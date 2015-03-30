@@ -34,6 +34,12 @@
 #include <assert.h>
 
 #include <lua.h>
+
+#if LUA_VERSION_NUM > 501
+#define LUA_COMPAT_MODULE true
+// I've no time to properly rewrite it to 5.2+ API for now. TODO: rewrite it
+#endif
+
 #include <lauxlib.h>
 
 #include <fann.h>
@@ -1038,6 +1044,7 @@ LUALIB_API int luaopen_fann(lua_State *L)
 #ifdef FANN_VERBOSE
 	printf("Registering FANN library\n");
 #endif
+
 
 	/* Refer to PIL 28.3 for an explaination:
 	 * These calls all set the metatables of

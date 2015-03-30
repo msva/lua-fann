@@ -19,8 +19,8 @@ ifeq ($(UNAME), Darwin)
 OS_FLAGS         ?= -bundle -undefined dynamic_lookup
 endif
 
-BIN               = src/fann.so
-OBJ               = src/fann.o
+BIN               = fann.so
+OBJ               = fann.o
 INCLUDES          = -I$(LUA_INC)
 DEFINES           =
 LIBS              = -L$(LIBDIR) -lfann
@@ -46,7 +46,7 @@ all: $(BIN)
 $(BIN): $(OBJ)
 	$(CC) $(LF) $^ -o $@
 
-%.o: %.c
+%.o: src/%.c
 	$(CC) $(CF) -c $^ -o $@
 
 clean:
