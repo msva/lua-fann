@@ -58,7 +58,12 @@ $(DOCS): $(SRC)
 	mkdir -p doc
 	$(LUA_BIN) doc.lua < $< > $@
 
+test_dump_main: all
+	@echo "====== TEST: Dumping main FANN table ======"
+	$(LUA_BIN) -e 'fann=require"fann"; for k,v in pairs(fann) do print(k,v) end'
+
 test: all
+	@echo "====== TEST: testing API ======"
 	-ln -sf ../$(BIN) test/
 	cd test && $(LUA_BIN) module.lua
 

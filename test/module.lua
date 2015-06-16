@@ -1,10 +1,9 @@
 -- This Lua script demonstrates how to use the LuaFann module
--- through the require("fann") statement.
 
 -- It is based on the xor_train.c and xor_test.c example
 -- programs distributed with FANN
 
-require("fann")
+local fann=require"fann"
 
 -- Create a neural network, with 2 inputs, two hidden layer neurons,
 -- and one output neuron

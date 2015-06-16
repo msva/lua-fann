@@ -34,13 +34,42 @@
 #include <assert.h>
 
 #include <lua.h>
+#include <lauxlib.h>
 
-#if LUA_VERSION_NUM > 501
-#define LUA_COMPAT_MODULE true
-// I've no time to properly rewrite it to 5.2+ API for now. TODO: rewrite it
+#if !defined(LUA_VERSION_NUM) || LUA_VERSION_NUM < 502
+/*
+ * Compatibility for Lua 5.1.
+ */
+
+static void luaL_setfuncs (lua_State *l, const luaL_Reg *reg, int nup)
+{
+    int i;
+
+    luaL_checkstack(l, nup, "too many upvalues");
+    for (; reg->name != NULL; reg++) {
+        for (i = 0; i < nup; i++)
+            lua_pushvalue(l, -nup);
+        lua_pushcclosure(l, reg->func, nup);
+        lua_setfield(l, -(nup + 2), reg->name);
+    }
+    lua_pop(l, nup);
+}
+
+#define lua_isinteger(L,l) lua_isnumber(L,l)
+//#define luaL_newlibtable(L,l) lua_createtable(L,0,sizeof(l)/sizeof((l)[0]))
+//#define luaL_newlib(L,l) (luaL_newlibtable(L,l), luaL_setfuncs(L,l,0))
 #endif
 
-#include <lauxlib.h>
+#if LUA_VERSION_NUM > 501
+/*
+ * some syntactic-sugar macros removed after 5.1
+ */
+#define lua_tonumber(L,i) lua_tonumberx(L,(i),NULL)
+#define lua_tointeger(L,i) lua_tointegerx(L,(i),NULL)
+#define lua_tostring(L,i) lua_tolstring(L, (i), NULL)
+#define lua_newtable(L) lua_createtable(L, 0, 0)
+//#define lua_register(L,n,f) (lua_pushcfunction(L, (f)), lua_setglobal(L, (n)))
+#endif
 
 #include <fann.h>
 
@@ -65,10 +94,9 @@ static int ann_create_standard(lua_State *L)
 	int num_layers, i;
 	unsigned int *layers;
 
-	if(!lua_isnumber(L,1))
-		luaL_error(L, "First argument to fann.create_standard() must be an integer");
+	luaL_argcheck(L, lua_isinteger(L,1), 1, "First argument to fann.create_standard() must be an integer");
 
-	num_layers = lua_tointeger (L, 1);
+	num_layers = lua_tointeger(L, 1);
 #ifdef FANN_VERBOSE
 	printf("Creating neural net, %d layers\n", num_layers);
 #endif
@@ -79,7 +107,7 @@ static int ann_create_standard(lua_State *L)
 	if(lua_gettop(L) < num_layers + 1)
 		luaL_error(L, "Neural net has %d layers, so fann.open() must have %d parameters", num_layers, num_layers + 1);
 
-	layers = calloc(num_layers, sizeof *layers);
+	layers = lua_newuserdata(L, num_layers*(sizeof *layers));
 	if(!layers)
 		luaL_error(L, "out of memory");
 
@@ -88,7 +116,6 @@ static int ann_create_standard(lua_State *L)
 		int n = luaL_checkinteger(L, i + 2);
 		if(n < 1)
 		{
-			free(layers);
 			luaL_error(L, "Layer %d must have at least 1 neuron", i);
 		}
 
@@ -98,7 +125,7 @@ static int ann_create_standard(lua_State *L)
 		layers[i] = n;
 	}
 
-	ann = lua_newuserdata (L, sizeof *ann);
+	ann = lua_newuserdata(L, sizeof *ann);
 
 	luaL_getmetatable(L, FANN_METATABLE);
 	lua_setmetatable(L, -2);
@@ -106,11 +133,9 @@ static int ann_create_standard(lua_State *L)
 	*ann = fann_create_standard_array(num_layers, layers);
 	if(!*ann)
 	{
-		free(layers);
 		luaL_error(L, "Unable to create neural network");
 	}
 
-	free(layers);
 	return 1;
 }
 
@@ -130,10 +155,9 @@ static int ann_create_sparse(lua_State *L)
 
 	connection_rate = luaL_checknumber(L, 1);
 
-	if(!lua_isnumber(L,2))
-		luaL_error(L, "Second argument to fann.create_sparse() must be an integer");
+	luaL_argcheck(L, lua_isinteger(L,2), 2, "Second argument to fann.create_sparse() must be an integer");
 
-	num_layers = lua_tointeger (L, 2);
+	num_layers = lua_tointeger(L, 2);
 #ifdef FANN_VERBOSE
 	printf("Creating neural net, %d layers\n", num_layers);
 #endif
@@ -144,7 +168,7 @@ static int ann_create_sparse(lua_State *L)
 	if(lua_gettop(L) < num_layers + 2)
 		luaL_error(L, "Neural net has %d layers, so fann.create_sparse() must have %d parameters", num_layers, num_layers + 2);
 
-	layers = calloc(num_layers, sizeof *layers);
+	layers = lua_newuserdata(L, num_layers*(sizeof *layers));
 	if(!layers)
 		luaL_error(L, "out of memory");
 
@@ -153,7 +177,6 @@ static int ann_create_sparse(lua_State *L)
 		int n = luaL_checkinteger(L, i + 3);
 		if(n < 1)
 		{
-			free(layers);
 			luaL_error(L, "Layer %d must have at least 1 neuron", i);
 		}
 
@@ -163,7 +186,7 @@ static int ann_create_sparse(lua_State *L)
 		layers[i] = n;
 	}
 
-	ann = lua_newuserdata (L, sizeof *ann);
+	ann = lua_newuserdata(L, sizeof *ann);
 
 	luaL_getmetatable(L, FANN_METATABLE);
 	lua_setmetatable(L, -2);
@@ -171,11 +194,9 @@ static int ann_create_sparse(lua_State *L)
 	*ann = fann_create_sparse_array(connection_rate, num_layers, layers);
 	if(!*ann)
 	{
-		free(layers);
 		luaL_error(L, "Unable to create neural network");
 	}
 
-	free(layers);
 	return 1;
 }
 
@@ -189,15 +210,14 @@ static int ann_create_from_file(lua_State *L)
 	struct fann **ann;
 	const char *fname;
 
-	if(!lua_isstring(L,1))
-		luaL_error(L, "Argument to fann.open_file() must be a string");
+	luaL_argcheck(L, lua_isstring(L,1), 1, "Argument to fann.open_file() must be a string");
 
-	fname = lua_tostring (L, 1);
+	fname = lua_tostring(L, 1);
 #ifdef FANN_VERBOSE
 	printf("Opening neural net '%s'\n", fname);
 #endif
 
-	ann = lua_newuserdata (L, sizeof *ann);
+	ann = lua_newuserdata(L, sizeof *ann);
 
 	luaL_getmetatable(L, FANN_METATABLE);
 	lua_setmetatable(L, -2);
@@ -293,7 +313,7 @@ static int ann_set_training_algorithm(lua_State *L)
 	ann = luaL_checkudata(L, 1, FANN_METATABLE);
 	luaL_argcheck(L, ann != NULL, 1, "'neural net' expected");
 
-	alg = luaL_checkinteger (L, 2);
+	alg = luaL_checkinteger(L, 2);
 
 	if(alg < FANN_TRAIN_INCREMENTAL || alg > FANN_TRAIN_QUICKPROP)
 		luaL_error(L, "%d is not a valid algorithm", alg);
@@ -337,7 +357,7 @@ static int ann_set_learning_rate(lua_State *L)
 	ann = luaL_checkudata(L, 1, FANN_METATABLE);
 	luaL_argcheck(L, ann != NULL, 1, "'neural net' expected");
 
-	rate = luaL_checknumber (L, 2);
+	rate = luaL_checknumber(L, 2);
 
 #ifdef FANN_VERBOSE
 	printf("Setting learning rate to %g\n", rate);
@@ -378,7 +398,7 @@ static int ann_set_activation_function_hidden(lua_State *L)
 	if(lua_gettop(L) < 2)
 		luaL_error(L, "insufficient parameters");
 
-	fun = lua_tointeger (L, 2);
+	fun = lua_tointeger(L, 2);
 
 #ifdef FANN_VERBOSE
 	printf("Setting hidden activation function to %d\n", fun);
@@ -404,7 +424,7 @@ static int ann_set_activation_function_output(lua_State *L)
 	if(lua_gettop(L) < 2)
 		luaL_error(L, "insufficient parameters");
 
-	fun = lua_tointeger (L, 2);
+	fun = lua_tointeger(L, 2);
 
 #ifdef FANN_VERBOSE
 	printf("Setting output activation function to %d\n", fun);
@@ -430,7 +450,7 @@ static int ann_set_activation_steepness_hidden(lua_State *L)
 	if(lua_gettop(L) < 2)
 		luaL_error(L, "insufficient parameters");
 
-	steep = lua_tonumber (L, 2);
+	steep = lua_tonumber(L, 2);
 
 #ifdef FANN_VERBOSE
 	printf("Setting hidden layer activation steepness to %f\n", steep);
@@ -457,7 +477,7 @@ static int ann_set_activation_steepness_output(lua_State *L)
 	if(lua_gettop(L) < 2)
 		luaL_error(L, "insufficient parameters");
 
-	steep = lua_tonumber (L, 2);
+	steep = lua_tonumber(L, 2);
 
 #ifdef FANN_VERBOSE
 	printf("Setting output layer activation steepness to %f\n", steep);
@@ -485,7 +505,7 @@ static int ann_set_train_stop_function(lua_State *L)
 	if(lua_gettop(L) < 2)
 		luaL_error(L, "insufficient parameters");
 
-	stop = lua_tointeger (L, 2);
+	stop = lua_tointeger(L, 2);
 
 #ifdef FANN_VERBOSE
 	printf("Setting training stop criteria to %d\n", stop);
@@ -512,7 +532,7 @@ static int ann_set_bit_fail_limit(lua_State *L)
 	if(lua_gettop(L) < 2)
 		luaL_error(L, "insufficient parameters");
 
-	limit = lua_tonumber (L, 2);
+	limit = lua_tonumber(L, 2);
 
 #ifdef FANN_VERBOSE
 	printf("Setting bit fail limit to %f\n", limit);
@@ -608,7 +628,7 @@ static int ann_run(lua_State *L)
 	printf("Evaluating neural net: %d inputs, %d outputs\n", nin, nout);
 #endif
 
-	input = calloc(nin, sizeof *input);
+	input = lua_newuserdata(L, nin*(sizeof *input));
 	if(!input)
 		luaL_error(L, "out of memory");
 
@@ -629,8 +649,6 @@ static int ann_run(lua_State *L)
 		lua_pushnumber(L, output[i]);
 	}
 
-	free(input);
-
 	return nout;
 }
 
@@ -650,7 +668,7 @@ static int ann_save(lua_State *L)
 	ann = luaL_checkudata(L, 1, FANN_METATABLE);
 	luaL_argcheck(L, ann != NULL, 1, "'neural net' expected");
 
-	fname = lua_tostring (L, 2);
+	fname = lua_tostring(L, 2);
 #ifdef FANN_VERBOSE
 	printf("Saving neural net to \"%s\"\n", fname);
 #endif
@@ -674,15 +692,14 @@ static int ann_read_train_from_file(lua_State *L)
 	struct fann_train_data **train;
 	const char *fname;
 
-	if(!lua_isstring(L,1))
-		luaL_error(L, "Argument to fann.open_file() must be a string");
+	luaL_argcheck(L, lua_isstring(L,1), 1, "Argument to fann.open_file() must be a string");
 
-	fname = lua_tostring (L, 1);
+	fname = lua_tostring(L, 1);
 #ifdef FANN_VERBOSE
 	printf("Opening training data from file '%s'\n", fname);
 #endif
 
-	train = lua_newuserdata (L, sizeof *train);
+	train = lua_newuserdata(L, sizeof *train);
 
 	luaL_getmetatable(L, FANN_TRAIN_METATABLE);
 	lua_setmetatable(L, -2);
@@ -754,10 +771,10 @@ static int ann_train_on_file(lua_State *L)
 	if(lua_gettop(L) < 5)
 		luaL_error(L, "insufficient parameters");
 
-	fname = lua_tostring (L, 2);
-	max_epochs = lua_tointeger (L, 3);
-	epochs_between_reports = lua_tointeger (L, 4);
-	desired_error = lua_tonumber (L, 5);
+	fname = lua_tostring(L, 2);
+	max_epochs = lua_tointeger(L, 3);
+	epochs_between_reports = lua_tointeger(L, 4);
+	desired_error = lua_tonumber(L, 5);
 
 #ifdef FANN_VERBOSE
 	printf("Training on file \"%s\" for up to %d epochs...\n", fname, max_epochs);
@@ -790,9 +807,9 @@ static int ann_train_on_data(lua_State *L)
 	train = luaL_checkudata(L, 2, FANN_TRAIN_METATABLE);
 	luaL_argcheck(L, train != NULL, 1, "'training data' expected");
 
-	max_epochs = lua_tointeger (L, 3);
-	epochs_between_reports = lua_tointeger (L, 4);
-	desired_error = lua_tonumber (L, 5);
+	max_epochs = lua_tointeger(L, 3);
+	epochs_between_reports = lua_tointeger(L, 4);
+	desired_error = lua_tonumber(L, 5);
 
 #ifdef FANN_VERBOSE
 	printf("Training on data for up to %d epochs...\n", max_epochs);
@@ -818,7 +835,7 @@ static int ann_save_train(lua_State *L)
 	train = luaL_checkudata(L, 1, FANN_TRAIN_METATABLE);
 	luaL_argcheck(L, train != NULL, 1, "'training data' expected");
 
-	fname = lua_tostring (L, 2);
+	fname = lua_tostring(L, 2);
 
 #ifdef FANN_VERBOSE
 	printf("Saving training data to %s\n", fname);
@@ -903,15 +920,6 @@ static int ann_train_scale(lua_State *L)
 
 /* ************************************************************************** */
 
-/* Members of the FANN class */
-static const struct luaL_Reg fann_lib[] = {
-  {"create_standard", ann_create_standard},
-  {"create_sparse", ann_create_sparse},
-  {"create_from_file", ann_create_from_file},
-  {"read_train_from_file", ann_read_train_from_file},
-  {NULL, NULL}
-};
-
 /* Members of FANN objects
  * __gc is a Lua metamethod called when the object is garbage collected
  *    (see PIL chapter 29)
@@ -957,6 +965,15 @@ struct iglobal { char *name; int value; };
  *# The {{fann}} class also contains several variables that reflect the constants defined
  *# for FANN in {{fann_data.h}}, as listed below:\n
  */
+/* Members of the FANN class */
+static const struct luaL_Reg fann_lib[] = {
+  {"create_standard", ann_create_standard},
+  {"create_sparse", ann_create_sparse},
+  {"create_from_file", ann_create_from_file},
+  {"read_train_from_file", ann_read_train_from_file},
+  {NULL, NULL}
+};
+
 static const struct iglobal fann_activation_functions [] = {
 	/*# The following is a list of all activation functions in FANN.
 	 *{
@@ -1031,7 +1048,6 @@ static const struct iglobal fann_activation_functions [] = {
 	/*}
 	 *-
 	 */
-
 	{NULL, 0}
 };
 
@@ -1045,7 +1061,6 @@ LUALIB_API int luaopen_fann(lua_State *L)
 	printf("Registering FANN library\n");
 #endif
 
-
 	/* Refer to PIL 28.3 for an explaination:
 	 * These calls all set the metatables of
 	 * FANN objects,
@@ -1054,9 +1069,17 @@ LUALIB_API int luaopen_fann(lua_State *L)
 	lua_pushstring(L, "__index");
 	lua_pushvalue(L, -2);
 	lua_settable(L, -3);
-	luaL_openlib(L, NULL, fann_lib_members, 0);
+	luaL_setfuncs(L, fann_lib_members, 0);
 
-	luaL_register(L, "fann", fann_lib);
+	luaL_newmetatable(L, FANN_TRAIN_METATABLE);
+	lua_pushstring(L, "__index");
+	lua_pushvalue(L, -2);
+	lua_settable(L, -3);
+	luaL_setfuncs(L, fann_train_lib_members, 0);
+
+	lua_newtable(L);
+	luaL_setfuncs(L, fann_lib, 0);
+
 	/* The table 'fann' is now still on the top of the
 		stack, so register some globals with it...
 	*/
@@ -1066,15 +1089,9 @@ LUALIB_API int luaopen_fann(lua_State *L)
 		printf("Setting fann.%s to %d\n", i->name, i->value);
 #endif
 		lua_pushstring(L, i->name);
-		lua_pushnumber(L, i->value);
+		lua_pushinteger(L, i->value);
 		lua_settable(L, -3);
 	}
-
-	luaL_newmetatable(L, FANN_TRAIN_METATABLE);
-	lua_pushstring(L, "__index");
-	lua_pushvalue(L, -2);
-	lua_settable(L, -3);
-	luaL_openlib(L, NULL, fann_train_lib_members, 0);
 
 	return 1;
 }
