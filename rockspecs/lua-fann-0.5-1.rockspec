@@ -1,9 +1,9 @@
 package = "lua-fann"
-version = "0.4-1"
+version = "0.5-1"
 
 source = {
-  url = "https://github.com/msva/lua-fann/archive/0.4.zip",
-  dir = "lua-fann-0.4",
+  url = "https://github.com/msva/lua-fann/archive/0.5.zip",
+  dir = "lua-fann-0.5",
 }
 
 description = {
@@ -15,7 +15,7 @@ description = {
 }
 
 dependencies = {
-  "lua >= 5.1, < 5.3"
+  "lua >= 5.1, =< 5.3"
 }
 
 external_dependencies = {
