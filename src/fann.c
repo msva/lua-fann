@@ -1,21 +1,21 @@
 /******************************************************************
 	LuaFann: Lua bindings for the Fast Artificial Neural Network Library
-    Copyright (C) Vadim A. Misbakh-Soloviov
-    Copyright (C) 2008-2009  Werner Stoop
+	Copyright (C) Vadim A. Misbakh-Soloviov
+	Copyright (C) 2008-2009  Werner Stoop
 
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 2.1 of the License, or (at your option) any later version.
+	This library is free software; you can redistribute it and/or
+	modify it under the terms of the GNU Lesser General Public
+	License as published by the Free Software Foundation; either
+	version 2.1 of the License, or (at your option) any later version.
 
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
+	This library is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+	You should have received a copy of the GNU Lesser General Public
+	License along with this library; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ******************************************************************/
 
 /*
@@ -56,8 +56,8 @@ static void luaL_setfuncs (lua_State *l, const luaL_Reg *reg, int nup)
 }
 
 #define lua_isinteger(L,l) lua_isnumber(L,l)
-//#define luaL_newlibtable(L,l) lua_createtable(L,0,sizeof(l)/sizeof((l)[0]))
-//#define luaL_newlib(L,l) (luaL_newlibtable(L,l), luaL_setfuncs(L,l,0))
+#define luaL_newlibtable(L,l) lua_createtable(L,0,sizeof(l)/sizeof((l)[0]))
+#define luaL_newlib(L,l) (luaL_newlibtable(L,l), luaL_setfuncs(L,l,0))
 #endif
 
 #if LUA_VERSION_NUM > 501
@@ -67,7 +67,7 @@ static void luaL_setfuncs (lua_State *l, const luaL_Reg *reg, int nup)
 #define lua_tonumber(L,i) lua_tonumberx(L,(i),NULL)
 #define lua_tointeger(L,i) lua_tointegerx(L,(i),NULL)
 #define lua_tostring(L,i) lua_tolstring(L, (i), NULL)
-#define lua_newtable(L) lua_createtable(L, 0, 0)
+//#define lua_newtable(L) lua_createtable(L, 0, 0)
 //#define lua_register(L,n,f) (lua_pushcfunction(L, (f)), lua_setglobal(L, (n)))
 #endif
 
@@ -108,8 +108,6 @@ static int ann_create_standard(lua_State *L)
 		luaL_error(L, "Neural net has %d layers, so fann.open() must have %d parameters", num_layers, num_layers + 1);
 
 	layers = lua_newuserdata(L, num_layers*(sizeof *layers));
-	if(!layers)
-		luaL_error(L, "out of memory");
 
 	for(i = 0; i < num_layers; i++)
 	{
@@ -169,8 +167,6 @@ static int ann_create_sparse(lua_State *L)
 		luaL_error(L, "Neural net has %d layers, so fann.create_sparse() must have %d parameters", num_layers, num_layers + 2);
 
 	layers = lua_newuserdata(L, num_layers*(sizeof *layers));
-	if(!layers)
-		luaL_error(L, "out of memory");
 
 	for(i = 0; i < num_layers; i++)
 	{
@@ -629,8 +625,6 @@ static int ann_run(lua_State *L)
 #endif
 
 	input = lua_newuserdata(L, nin*(sizeof *input));
-	if(!input)
-		luaL_error(L, "out of memory");
 
 	for(i = 0; i < nin; i++)
 	{
@@ -1077,8 +1071,9 @@ LUALIB_API int luaopen_fann(lua_State *L)
 	lua_settable(L, -3);
 	luaL_setfuncs(L, fann_train_lib_members, 0);
 
-	lua_newtable(L);
-	luaL_setfuncs(L, fann_lib, 0);
+//	lua_newtable(L);
+//	luaL_setfuncs(L, fann_lib, 0);
+	luaL_newlib(L, fann_lib);
 
 	/* The table 'fann' is now still on the top of the
 		stack, so register some globals with it...
