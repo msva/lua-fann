@@ -64,9 +64,18 @@ static void luaL_setfuncs (lua_State *l, const luaL_Reg *reg, int nup)
 /*
  * some syntactic-sugar macros removed after 5.1
  */
-#define lua_tonumber(L,i) lua_tonumberx(L,(i),NULL)
-#define lua_tointeger(L,i) lua_tointegerx(L,(i),NULL)
-#define lua_tostring(L,i) lua_tolstring(L, (i), NULL)
+#ifndef lua_isinteger
+	#define lua_isinteger(L,l) lua_isnumber(L,l)
+#endif
+#ifndef lua_tonumber
+	#define lua_tonumber(L,i) lua_tonumberx(L,(i),NULL)
+#endif
+#ifndef lua_tointeger
+	#define lua_tointeger(L,i) lua_tointegerx(L,(i),NULL)
+#endif
+#ifndef lua_tostring
+	#define lua_tostring(L,i) lua_tolstring(L, (i), NULL)
+#endif
 //#define lua_newtable(L) lua_createtable(L, 0, 0)
 //#define lua_register(L,n,f) (lua_pushcfunction(L, (f)), lua_setglobal(L, (n)))
 #endif

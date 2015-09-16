@@ -1,9 +1,9 @@
 package = "lua-fann"
-version = "0.5-2"
+version = "0.5.3"
 
 source = {
-  url = "https://github.com/msva/lua-fann/archive/0.5.1.zip",
-  dir = "lua-fann-0.5.1",
+  url = "https://github.com/msva/lua-fann/archive/0.5.3.zip",
+  dir = "lua-fann-0.5.3",
 }
 
 description = {
