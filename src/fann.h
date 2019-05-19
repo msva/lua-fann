@@ -20,4 +20,12 @@
 /*
  *	This module forms the FANN wrapper for Lua
  */
+
+#include <lua.h>
+#include <lauxlib.h>
+
+
 LUALIB_API int luaopen_fann(lua_State *L);
+#if !defined(LUA_VERSION_NUM) || LUA_VERSION_NUM < 502
+LUALIB_API void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup);
+#endif

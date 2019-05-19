@@ -33,31 +33,32 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include <lua.h>
-#include <lauxlib.h>
+#include "fann.h"
 
 #if !defined(LUA_VERSION_NUM) || LUA_VERSION_NUM < 502
 /*
  * Compatibility for Lua 5.1.
  */
 
-static void luaL_setfuncs (lua_State *l, const luaL_Reg *reg, int nup)
-{
+LUALIB_API void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
+  luaL_checkstack(L, nup, "too many upvalues");
+  for (; l->name != NULL; l++) {  /* fill the table with given functions */
     int i;
-
-    luaL_checkstack(l, nup, "too many upvalues");
-    for (; reg->name != NULL; reg++) {
-        for (i = 0; i < nup; i++)
-            lua_pushvalue(l, -nup);
-        lua_pushcclosure(l, reg->func, nup);
-        lua_setfield(l, -(nup + 2), reg->name);
-    }
-    lua_pop(l, nup);
+    for (i = 0; i < nup; i++)  /* copy upvalues to the top */
+      lua_pushvalue(L, -nup);
+    lua_pushcclosure(L, l->func, nup);  /* closure with those upvalues */
+    lua_setfield(L, -(nup + 2), l->name);
+  }
+  lua_pop(L, nup);  /* remove upvalues */
 }
 
 #define lua_isinteger(L,l) lua_isnumber(L,l)
+#if !defined luaL_newlibtable
 #define luaL_newlibtable(L,l) lua_createtable(L,0,sizeof(l)/sizeof((l)[0]))
+#endif
+#if !defined luaL_newlib
 #define luaL_newlib(L,l) (luaL_newlibtable(L,l), luaL_setfuncs(L,l,0))
+#endif
 #endif
 
 #if LUA_VERSION_NUM > 501
